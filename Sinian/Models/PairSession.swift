@@ -1,0 +1,49 @@
+//
+//  PairSession.swift
+//  Sinian
+//
+
+import Foundation
+import SwiftUI
+import Combine
+
+public final class PairSession: ObservableObject {
+    @AppStorage("myNickname") public var myNickname: String = "宝贝"
+    @AppStorage("partnerNickname") public var partnerNickname: String = "猪猪"
+    @AppStorage("pairCode") public var pairCode: String = "LOVE-520"
+    @AppStorage("isPaired") public var isPaired: Bool = true
+    @AppStorage("serverURL") public var serverURL: String = "ws://172.20.10.12:8080"
+    @AppStorage("autoDismissSeconds") public var autoDismissSeconds: Int = 15
+
+    @Published public var isConnectedToServer: Bool = false
+    @Published public var todayMissCount: Int = 0
+    @Published public var historyEvents: [MissEvent] = []
+
+    public static let shared = PairSession()
+
+    private init() {
+        loadHistory()
+    }
+
+    public func recordEvent(_ event: MissEvent) {
+        historyEvents.insert(event, at: 0)
+        todayMissCount += 1
+        saveHistory()
+    }
+
+    private func saveHistory() {
+        if let data = try? JSONEncoder().encode(historyEvents) {
+            UserDefaults.standard.set(data, forKey: "historyEvents")
+        }
+    }
+
+    private func loadHistory() {
+        if let data = UserDefaults.standard.data(forKey: "historyEvents"),
+           let decoded = try? JSONDecoder().decode([MissEvent].self, from: data) {
+            self.historyEvents = decoded
+            // 计算今天的记录数
+            let calendar = Calendar.current
+            self.todayMissCount = decoded.filter { calendar.isDateInToday($0.timestamp) }.count
+        }
+    }
+}

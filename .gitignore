@@ -1,0 +1,33 @@
+# Xcode
+## User settings
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+*.xcuserstate
+
+## Build generated
+build/
+DerivedData/
+*.moved-aside
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Temporary object files
+*.o
+*.out
+
+## macOS
+.DS_Store
+.Spotlight-V100
+.Trashes
+
+## Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## System generated logs & checkpoints
+.system_generated/
+scratch/

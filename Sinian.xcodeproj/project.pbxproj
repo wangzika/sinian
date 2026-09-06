@@ -1,0 +1,437 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05DCFAFD6B80CE27F17E5AFE /* Sinian/Models/MissYouAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BC26ACE5546C7ECDB58AA4 /* Sinian/Models/MissYouAttributes.swift */; };
+		3376A95E3ACE3055E239E0BD /* Sinian/Models/MissEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B30546208E7A4DFB858AC1 /* Sinian/Models/MissEvent.swift */; };
+		3D1CD07B3B8C7483FC5D4188 /* Sinian/Views/PairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194ACB26C16EE082AE836F50 /* Sinian/Views/PairingView.swift */; };
+		400DC90540AB0ABA4F5FD89F /* Sinian/App/SinianApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C722EA455B34E84C86377B64 /* Sinian/App/SinianApp.swift */; };
+		7E8CEC25383AD00B015C1D85 /* Sinian/Services/LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7ADFEFA2D43B30E1755B5F /* Sinian/Services/LiveActivityManager.swift */; };
+		88CE3A7B11199813403B73BC /* SinianIslandWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AEECF89DAE3DA119DFD01350 /* SinianIslandWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		959F4232245329AB34D3A9AB /* SinianIslandWidget/SinianIslandWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6568B78E1B3AF2F00FF4BB2D /* SinianIslandWidget/SinianIslandWidget.swift */; };
+		9BDAC82EF6579658B5EC4581 /* SinianIslandWidget/SinianIslandWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FA652156E4C70BF97F6B10 /* SinianIslandWidget/SinianIslandWidgetBundle.swift */; };
+		A10C999762B74416A4554CB2 /* Sinian/Services/HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3943E60F2D920F11E13A7F34 /* Sinian/Services/HapticManager.swift */; };
+		AEAFD77157622799CDEF9930 /* Sinian/Services/SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2C3AA189786AD860B6D946 /* Sinian/Services/SyncService.swift */; };
+		B39E47265579A9768B0AF486 /* SinianIslandWidget/LockScreenActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD07443AD3B42879E8B60E5 /* SinianIslandWidget/LockScreenActivityView.swift */; };
+		BA9A6C15951BC587ED61C21D /* Sinian/Views/MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985E134787DD977FF3F5C0EB /* Sinian/Views/MainView.swift */; };
+		C3D2A5E059FD4D622F4882AF /* Sinian/Models/MissYouAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BC26ACE5546C7ECDB58AA4 /* Sinian/Models/MissYouAttributes.swift */; };
+		C459B3CC10FC94BC90892AAA /* Sinian/Views/MemoryTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8852E57D8F4D3283265A3FAC /* Sinian/Views/MemoryTimelineView.swift */; };
+		D324E913621DB75D1E623F86 /* Sinian/Views/Components/HeartbeatButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1034631DF6BF88D1AC1C7337 /* Sinian/Views/Components/HeartbeatButton.swift */; };
+		D4A7CB44C798A9A64D38BB98 /* Sinian/Views/Components/IslandSimulatorCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F045DF02A35B1A2CF17A73DA /* Sinian/Views/Components/IslandSimulatorCard.swift */; };
+		FA37C6B91AEB0A83CD1F9921 /* Sinian/Models/PairSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD90F0B48F3FF8677BF172A /* Sinian/Models/PairSession.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C5264D2B043688C8B0F35A2B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6A714FD6B079E972445851C7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CCFF9288EFE114F90295A89D;
+			remoteInfo = SinianIslandWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		88F48D25FFA507E11E5069B1 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				88CE3A7B11199813403B73BC /* SinianIslandWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		04B30546208E7A4DFB858AC1 /* Sinian/Models/MissEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Models/MissEvent.swift; sourceTree = SOURCE_ROOT; };
+		1034631DF6BF88D1AC1C7337 /* Sinian/Views/Components/HeartbeatButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Views/Components/HeartbeatButton.swift; sourceTree = SOURCE_ROOT; };
+		12DBD3B1044731B8C35C4B03 /* Sinian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sinian.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		194ACB26C16EE082AE836F50 /* Sinian/Views/PairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Views/PairingView.swift; sourceTree = SOURCE_ROOT; };
+		1AB02AB00AFCAAF718188D40 /* Sinian/App/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/App/Info.plist; sourceTree = SOURCE_ROOT; };
+		3943E60F2D920F11E13A7F34 /* Sinian/Services/HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Services/HapticManager.swift; sourceTree = SOURCE_ROOT; };
+		4BD07443AD3B42879E8B60E5 /* SinianIslandWidget/LockScreenActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinianIslandWidget/LockScreenActivityView.swift; sourceTree = SOURCE_ROOT; };
+		6568B78E1B3AF2F00FF4BB2D /* SinianIslandWidget/SinianIslandWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinianIslandWidget/SinianIslandWidget.swift; sourceTree = SOURCE_ROOT; };
+		8852E57D8F4D3283265A3FAC /* Sinian/Views/MemoryTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Views/MemoryTimelineView.swift; sourceTree = SOURCE_ROOT; };
+		985E134787DD977FF3F5C0EB /* Sinian/Views/MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Views/MainView.swift; sourceTree = SOURCE_ROOT; };
+		9A44717186A116A564A9BB47 /* SinianIslandWidget/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinianIslandWidget/Info.plist; sourceTree = SOURCE_ROOT; };
+		AEECF89DAE3DA119DFD01350 /* SinianIslandWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SinianIslandWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C722EA455B34E84C86377B64 /* Sinian/App/SinianApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/App/SinianApp.swift; sourceTree = SOURCE_ROOT; };
+		DAD90F0B48F3FF8677BF172A /* Sinian/Models/PairSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Models/PairSession.swift; sourceTree = SOURCE_ROOT; };
+		E0BC26ACE5546C7ECDB58AA4 /* Sinian/Models/MissYouAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Models/MissYouAttributes.swift; sourceTree = SOURCE_ROOT; };
+		EF2C3AA189786AD860B6D946 /* Sinian/Services/SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Services/SyncService.swift; sourceTree = SOURCE_ROOT; };
+		F045DF02A35B1A2CF17A73DA /* Sinian/Views/Components/IslandSimulatorCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Views/Components/IslandSimulatorCard.swift; sourceTree = SOURCE_ROOT; };
+		F5FA652156E4C70BF97F6B10 /* SinianIslandWidget/SinianIslandWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinianIslandWidget/SinianIslandWidgetBundle.swift; sourceTree = SOURCE_ROOT; };
+		FB7ADFEFA2D43B30E1755B5F /* Sinian/Services/LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinian/Services/LiveActivityManager.swift; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		07A1AD05F7D7C6BFCDB10022 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		918ECAD9815736B69CBA220C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		48497B6B81BAC65CC01E26F6 /* Sinian */ = {
+			isa = PBXGroup;
+			children = (
+				C722EA455B34E84C86377B64 /* Sinian/App/SinianApp.swift */,
+				E0BC26ACE5546C7ECDB58AA4 /* Sinian/Models/MissYouAttributes.swift */,
+				04B30546208E7A4DFB858AC1 /* Sinian/Models/MissEvent.swift */,
+				DAD90F0B48F3FF8677BF172A /* Sinian/Models/PairSession.swift */,
+				FB7ADFEFA2D43B30E1755B5F /* Sinian/Services/LiveActivityManager.swift */,
+				3943E60F2D920F11E13A7F34 /* Sinian/Services/HapticManager.swift */,
+				EF2C3AA189786AD860B6D946 /* Sinian/Services/SyncService.swift */,
+				985E134787DD977FF3F5C0EB /* Sinian/Views/MainView.swift */,
+				194ACB26C16EE082AE836F50 /* Sinian/Views/PairingView.swift */,
+				8852E57D8F4D3283265A3FAC /* Sinian/Views/MemoryTimelineView.swift */,
+				1034631DF6BF88D1AC1C7337 /* Sinian/Views/Components/HeartbeatButton.swift */,
+				F045DF02A35B1A2CF17A73DA /* Sinian/Views/Components/IslandSimulatorCard.swift */,
+				1AB02AB00AFCAAF718188D40 /* Sinian/App/Info.plist */,
+			);
+			name = Sinian;
+			sourceTree = "<group>";
+		};
+		5C3301D8292DBACEA69EE035 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				12DBD3B1044731B8C35C4B03 /* Sinian.app */,
+				AEECF89DAE3DA119DFD01350 /* SinianIslandWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B9B8DBC97B2054281802674F = {
+			isa = PBXGroup;
+			children = (
+				48497B6B81BAC65CC01E26F6 /* Sinian */,
+				F41D03081DF718CB770FAE3C /* SinianIslandWidget */,
+				5C3301D8292DBACEA69EE035 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F41D03081DF718CB770FAE3C /* SinianIslandWidget */ = {
+			isa = PBXGroup;
+			children = (
+				F5FA652156E4C70BF97F6B10 /* SinianIslandWidget/SinianIslandWidgetBundle.swift */,
+				6568B78E1B3AF2F00FF4BB2D /* SinianIslandWidget/SinianIslandWidget.swift */,
+				4BD07443AD3B42879E8B60E5 /* SinianIslandWidget/LockScreenActivityView.swift */,
+				9A44717186A116A564A9BB47 /* SinianIslandWidget/Info.plist */,
+			);
+			name = SinianIslandWidget;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A1D1B958922F39EFB59FFBA /* Sinian */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5C984843A9CF915DAA65EDA8 /* Build configuration list for PBXNativeTarget "Sinian" */;
+			buildPhases = (
+				3A726B34EDBF293EE21C0635 /* Sources */,
+				07A1AD05F7D7C6BFCDB10022 /* Frameworks */,
+				068ABBD3FCE27411826A7997 /* Resources */,
+				88F48D25FFA507E11E5069B1 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				216452E8191A20783FBE9DBD /* PBXTargetDependency */,
+			);
+			name = Sinian;
+			productName = Sinian;
+			productReference = 12DBD3B1044731B8C35C4B03 /* Sinian.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CCFF9288EFE114F90295A89D /* SinianIslandWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6AF4F9EB7EE931696D9C918B /* Build configuration list for PBXNativeTarget "SinianIslandWidget" */;
+			buildPhases = (
+				7F5AB63C30484A5C3020596B /* Sources */,
+				918ECAD9815736B69CBA220C /* Frameworks */,
+				04231E9B0CF97B753C535FFF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SinianIslandWidget;
+			productName = SinianIslandWidget;
+			productReference = AEECF89DAE3DA119DFD01350 /* SinianIslandWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6A714FD6B079E972445851C7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					0A1D1B958922F39EFB59FFBA = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					CCFF9288EFE114F90295A89D = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 312AEC4A30A709044C1B251A /* Build configuration list for PBXProject "Sinian" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B9B8DBC97B2054281802674F;
+			productRefGroup = 5C3301D8292DBACEA69EE035 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0A1D1B958922F39EFB59FFBA /* Sinian */,
+				CCFF9288EFE114F90295A89D /* SinianIslandWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		04231E9B0CF97B753C535FFF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		068ABBD3FCE27411826A7997 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3A726B34EDBF293EE21C0635 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				400DC90540AB0ABA4F5FD89F /* Sinian/App/SinianApp.swift in Sources */,
+				C3D2A5E059FD4D622F4882AF /* Sinian/Models/MissYouAttributes.swift in Sources */,
+				3376A95E3ACE3055E239E0BD /* Sinian/Models/MissEvent.swift in Sources */,
+				FA37C6B91AEB0A83CD1F9921 /* Sinian/Models/PairSession.swift in Sources */,
+				7E8CEC25383AD00B015C1D85 /* Sinian/Services/LiveActivityManager.swift in Sources */,
+				A10C999762B74416A4554CB2 /* Sinian/Services/HapticManager.swift in Sources */,
+				AEAFD77157622799CDEF9930 /* Sinian/Services/SyncService.swift in Sources */,
+				BA9A6C15951BC587ED61C21D /* Sinian/Views/MainView.swift in Sources */,
+				3D1CD07B3B8C7483FC5D4188 /* Sinian/Views/PairingView.swift in Sources */,
+				C459B3CC10FC94BC90892AAA /* Sinian/Views/MemoryTimelineView.swift in Sources */,
+				D324E913621DB75D1E623F86 /* Sinian/Views/Components/HeartbeatButton.swift in Sources */,
+				D4A7CB44C798A9A64D38BB98 /* Sinian/Views/Components/IslandSimulatorCard.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7F5AB63C30484A5C3020596B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05DCFAFD6B80CE27F17E5AFE /* Sinian/Models/MissYouAttributes.swift in Sources */,
+				9BDAC82EF6579658B5EC4581 /* SinianIslandWidget/SinianIslandWidgetBundle.swift in Sources */,
+				959F4232245329AB34D3A9AB /* SinianIslandWidget/SinianIslandWidget.swift in Sources */,
+				B39E47265579A9768B0AF486 /* SinianIslandWidget/LockScreenActivityView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		216452E8191A20783FBE9DBD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CCFF9288EFE114F90295A89D /* SinianIslandWidget */;
+			targetProxy = C5264D2B043688C8B0F35A2B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		34DF6A7E6D98345F05C7A306 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BFYXSH5H2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sinian/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wangzhibo.sinian;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		3C7227DC02EC9273574900AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BFYXSH5H2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SinianIslandWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wangzhibo.sinian.island;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		8E292DFB9EE8E9971CDBFCB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		9B7B5D544DDCC2218D3FEFF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BFYXSH5H2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sinian/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wangzhibo.sinian;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		B21FEA8B361C5074C004CF32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		D46EA5DDD6B9C53CE3CD1D59 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BFYXSH5H2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SinianIslandWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wangzhibo.sinian.island;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		312AEC4A30A709044C1B251A /* Build configuration list for PBXProject "Sinian" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B21FEA8B361C5074C004CF32 /* Debug */,
+				8E292DFB9EE8E9971CDBFCB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5C984843A9CF915DAA65EDA8 /* Build configuration list for PBXNativeTarget "Sinian" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				34DF6A7E6D98345F05C7A306 /* Debug */,
+				9B7B5D544DDCC2218D3FEFF4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6AF4F9EB7EE931696D9C918B /* Build configuration list for PBXNativeTarget "SinianIslandWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C7227DC02EC9273574900AC /* Debug */,
+				D46EA5DDD6B9C53CE3CD1D59 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6A714FD6B079E972445851C7 /* Project object */;
+}
