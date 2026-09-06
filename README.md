@@ -86,7 +86,11 @@ sinian/
 ├── docs/                                 # 详细工程文档
 │   ├── ARCHITECTURE.md                   # 深度系统架构与技术方案
 │   ├── PAIRING_GUIDE.md                  # 双人联机与真机配对指南
+│   ├── OPERATION_GUIDE.md                # 启停与日常运维操作手册
 │   └── assets/                           # 效果预览截图
+├── scripts/                              # 一键启停脚本
+│   ├── start.sh                          # 一键启动信令服务与探测 IP
+│   └── stop.sh                           # 一键关闭服务与清理模拟器
 ├── Sinian.xcodeproj                      # Xcode 完整工程文件
 └── generate_project.py                   # Xcode 工程自动生成脚本
 ```
@@ -95,7 +99,18 @@ sinian/
 
 ## 🚀 快速上手
 
-### 1. 编译运行 iOS App
+### 1. 一键启动信令服务
+```bash
+./scripts/start.sh
+```
+> 脚本将自动探测本机局域网/热点 IP 并后台运行信令服务，终端会直接输出真机 App 可填写的 IP 地址。
+
+若需停止所有后台服务与模拟器：
+```bash
+./scripts/stop.sh
+```
+
+### 2. 编译运行 iOS App
 在 Mac 终端中进入根目录：
 ```bash
 open Sinian.xcodeproj
@@ -104,13 +119,6 @@ open Sinian.xcodeproj
 - 目标设备选择支持灵动岛的设备（如 **iPhone 16 Pro** / **iPhone 15 Pro** / 真机）；
 - 按快捷键 `Command + R` 即可编译运行。
 
-### 2. 启动信令服务端（用于双人实时联机）
-```bash
-cd server
-npm start
-```
-服务默认在 `http://localhost:8080` 启动，健康检查：`http://localhost:8080/health`。
-
 ### 3. 双人联机配对指南
 详见 **[双人联机与真机配对指南 (docs/PAIRING_GUIDE.md)](docs/PAIRING_GUIDE.md)**。
 
@@ -118,6 +126,7 @@ npm start
 
 ## 📖 进阶文档
 
+- [启停与日常运维操作手册 (docs/OPERATION_GUIDE.md)](docs/OPERATION_GUIDE.md)
 - [系统架构与技术实现 (docs/ARCHITECTURE.md)](docs/ARCHITECTURE.md)
 - [双人联机与真机配对指南 (docs/PAIRING_GUIDE.md)](docs/PAIRING_GUIDE.md)
 

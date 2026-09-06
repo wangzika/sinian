@@ -22,12 +22,16 @@ DerivedData/
 .Spotlight-V100
 .Trashes
 
-## Node
+## Node & Server Runtime
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
+*.pid
+.server.pid
 
 ## System generated logs & checkpoints
 .system_generated/
 scratch/
+
