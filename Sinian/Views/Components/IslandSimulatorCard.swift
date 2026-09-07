@@ -113,19 +113,27 @@ public struct IslandSimulatorCard: View {
                 }
             }
 
-            // 灵动岛停留时长设置
-            VStack(alignment: .leading, spacing: 6) {
-                Text("想念灵动岛停留模式")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
-
-                Picker("停留模式", selection: $pairSession.autoDismissSeconds) {
-                    Text("15秒自动收起").tag(15)
-                    Text("30秒自动收起").tag(30)
-                    Text("常驻陪伴 (不消失)").tag(0)
+            // 灵动岛常驻与消除规则提示
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "sparkles")
+                    .foregroundColor(.pink)
+                    .font(.system(size: 13))
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("常驻提醒与退出消除机制")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text("对方发来思念时灵动岛常驻挂起；点击灵动岛进入 App 查看消息后，上滑退出应用时灵动岛自动消除。")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
                 }
-                .pickerStyle(.segmented)
             }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.pink.opacity(0.08))
+            )
             .padding(.top, 4)
         }
         .padding(16)

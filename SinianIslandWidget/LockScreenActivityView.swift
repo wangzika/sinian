@@ -99,5 +99,6 @@ public struct LockScreenActivityView: View {
         .background(
             Color(UIColor.systemBackground).opacity(0.95)
         )
+        .widgetURL(URL(string: "sinian://open_message")!)
     }
 }

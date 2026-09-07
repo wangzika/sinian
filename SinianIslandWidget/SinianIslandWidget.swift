@@ -158,6 +158,7 @@ struct SinianIslandLiveActivity: Widget {
                 }
             }
             .keylineTint(.pink)
+            .widgetURL(URL(string: "sinian://open_message")!)
         }
     }
 }

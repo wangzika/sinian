@@ -6,6 +6,10 @@
 import Foundation
 import Combine
 import SwiftUI
+import ActivityKit
+import UIKit
+import AVFoundation
+import UserNotifications
 
 @MainActor
 public final class SyncService: NSObject, ObservableObject {
@@ -13,14 +17,75 @@ public final class SyncService: NSObject, ObservableObject {
 
     @Published public var isConnected: Bool = false
     @Published public var partnerOnline: Bool = false
+    @Published public var lastReceivedEvent: MissEvent?
 
     private var webSocketTask: URLSessionWebSocketTask?
     private var session: URLSession?
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
 
     private override init() {
         super.init()
         let config = URLSessionConfiguration.default
+        config.shouldUseExtendedBackgroundIdleMode = true
+        config.waitsForConnectivity = true
         session = URLSession(configuration: config, delegate: self, delegateQueue: .main)
+        setupAudioSession()
+        requestNotificationPermission()
+    }
+
+    /// 请求系统通知权限（用于锁屏与灵动岛顶部弹窗）
+    public func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            print("[SyncService] 系统通知权限: \(granted ? "已允许" : "未允许")")
+        }
+    }
+
+    /// 发送本地灵动岛下拉通知
+    public func postLocalMissNotification(senderName: String, message: String, emoji: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "\(senderName) 想你啦！\(emoji)"
+        content.body = message
+        content.sound = .default
+        content.userInfo = ["url": "sinian://open_message"]
+
+        let request = UNNotificationRequest(
+            identifier: "sinian_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("[SyncService] 发送本地通知失败: \(error.localizedDescription)")
+            } else {
+                print("[SyncService] 成功触发系统通知/灵动岛下拉横幅")
+            }
+        }
+    }
+
+    private func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("[SyncService] 音频会话配置提示: \(error.localizedDescription)")
+        }
+    }
+
+    /// 进入后台时保持长连接活跃，确保能接收到思念信号并激活灵动岛
+    public func beginBackgroundExecution() {
+        endBackgroundExecution()
+        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "SinianWebSocketKeepAlive") { [weak self] in
+            print("[SyncService] 系统即将回收后台执行时间")
+            self?.endBackgroundExecution()
+        }
+        print("[SyncService] 开启后台网络保持任务 (ID: \(backgroundTaskID.rawValue))")
+    }
+
+    public func endBackgroundExecution() {
+        if backgroundTaskID != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+            backgroundTaskID = .invalid
+        }
     }
 
     /// 连接配对信令服务器
@@ -64,17 +129,7 @@ public final class SyncService: NSObject, ObservableObject {
         )
         pairSession.recordEvent(event)
 
-        // 2. 如果开启了本机实时活动预览，同步更新
-        LiveActivityManager.shared.startActivity(
-            senderName: myName,
-            partnerName: partnerName,
-            message: message,
-            emoji: emoji,
-            missCount: pairSession.todayMissCount,
-            actionType: actionType
-        )
-
-        // 3. 发送给信令服务器
+        // 2. 发送给信令服务器 (仅接收方会弹出灵动岛提醒)
         let payload: [String: Any] = [
             "type": "miss_you",
             "pairCode": pairSession.pairCode,
@@ -121,8 +176,9 @@ public final class SyncService: NSObject, ObservableObject {
 
         // 触发触觉与震动
         HapticManager.shared.playPartnerMissNotification()
+        postLocalMissNotification(senderName: partnerName, message: message, emoji: emoji)
 
-        // 记录到足迹
+        // 记录到足迹与未读思念
         let event = MissEvent(
             senderName: partnerName,
             isFromMe: false,
@@ -131,6 +187,8 @@ public final class SyncService: NSObject, ObservableObject {
             actionType: actionType
         )
         PairSession.shared.recordEvent(event)
+        PairSession.shared.latestReceivedEvent = event
+        PairSession.shared.hasUnreadReceivedMessage = true
 
         // 触发灵动岛与锁屏显示
         LiveActivityManager.shared.startActivity(
@@ -196,10 +254,11 @@ public final class SyncService: NSObject, ObservableObject {
             let emoji = json["emoji"] as? String ?? "❤️"
             let actionType = json["actionType"] as? String ?? "tap"
 
-            // 播放震动
+            // 播放震动与灵动岛下拉横幅通知
             HapticManager.shared.playPartnerMissNotification()
+            postLocalMissNotification(senderName: senderName, message: message, emoji: emoji)
 
-            // 记录事件
+            // 记录事件并更新最新未读思念
             let event = MissEvent(
                 senderName: senderName,
                 isFromMe: false,
@@ -208,6 +267,8 @@ public final class SyncService: NSObject, ObservableObject {
                 actionType: actionType
             )
             PairSession.shared.recordEvent(event)
+            PairSession.shared.latestReceivedEvent = event
+            PairSession.shared.hasUnreadReceivedMessage = true
 
             // 激活/更新灵动岛与锁屏实时活动
             LiveActivityManager.shared.startActivity(

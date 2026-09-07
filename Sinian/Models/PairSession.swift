@@ -18,6 +18,10 @@ public final class PairSession: ObservableObject {
     @Published public var isConnectedToServer: Bool = false
     @Published public var todayMissCount: Int = 0
     @Published public var historyEvents: [MissEvent] = []
+    
+    /// 对方发来的最新思念消息（用于点开灵动岛进入 App 时高亮展示）
+    @Published public var latestReceivedEvent: MissEvent?
+    @Published public var hasUnreadReceivedMessage: Bool = false
 
     public static let shared = PairSession()
 

@@ -15,11 +15,29 @@ public final class LiveActivityManager: ObservableObject {
     @Published public private(set) var currentActivity: Activity<MissYouAttributes>?
     @Published public var isActivityActive: Bool = false
     @Published public var lastPushToken: String?
+    
+    /// 是否在退出 App 时收起灵动岛（当用户在 App 中查看过消息后置为 true）
+    @Published public var shouldDismissOnAppExit: Bool = false
+    @Published public var lastReceivedMessage: String = ""
+    @Published public var lastSenderName: String = ""
+    @Published public var lastEmoji: String = "❤️"
 
     private var pushTokenCancellable: AnyCancellable?
 
     private init() {
         checkExistingActivity()
+    }
+
+    /// 标记用户已在 App 内看到最新消息
+    public func markMessageAsViewed() {
+        guard isActivityActive else { return }
+        shouldDismissOnAppExit = true
+        print("[LiveActivity] 消息已在 App 内被查看，已标记退出时自动收起灵动岛")
+    }
+
+    /// 重置已读状态（当收到新消息时）
+    public func clearViewedState() {
+        shouldDismissOnAppExit = false
     }
 
     /// 检查当前是否已有正在运行的想念实时活动
@@ -30,7 +48,7 @@ public final class LiveActivityManager: ObservableObject {
         }
     }
 
-    /// 启动灵动岛与锁屏实时活动
+    /// 启动灵动岛与锁屏实时活动（常驻挂在灵动岛，不设自动超时）
     @discardableResult
     public func startActivity(
         pairId: String = "LOVE-520",
@@ -45,6 +63,11 @@ public final class LiveActivityManager: ObservableObject {
             print("[LiveActivity] 实时活动未被系统或用户允许开启")
             return false
         }
+
+        self.lastReceivedMessage = message
+        self.lastSenderName = senderName
+        self.lastEmoji = emoji
+        self.shouldDismissOnAppExit = false // 新消息到达，进入未读常驻挂起状态
 
         // 如果已有正在运行的活动，则直接更新其状态
         if currentActivity != nil {
@@ -71,7 +94,7 @@ public final class LiveActivityManager: ObservableObject {
         )
 
         do {
-            // 本地通过 WebSocket 信令驱动实时活动刷新，无需依赖远端 APNs 推送证书 (适配个人开发者签名)
+            // 本地信令长连接驱动灵动岛，无需 APNs 远端证书 (适配个人免费开发者账号)
             let activityPushType: PushType? = nil
 
             let activity = try Activity<MissYouAttributes>.request(
@@ -82,7 +105,7 @@ public final class LiveActivityManager: ObservableObject {
             self.currentActivity = activity
             self.isActivityActive = true
 
-            // 监听 APNs Push Token 更新 (真机环境)
+            // 监听 APNs Push Token 更新 (如有)
             if activityPushType != nil {
                 Task {
                     for await tokenData in activity.pushTokenUpdates {
@@ -91,13 +114,11 @@ public final class LiveActivityManager: ObservableObject {
                         await MainActor.run {
                             self.lastPushToken = tokenString
                         }
-                        // 同步 Token 到服务端
                         SyncService.shared.registerPushToken(tokenString)
                     }
                 }
             }
-            print("[LiveActivity] 成功启动灵动岛实时活动 (ID: \(activity.id))")
-            scheduleAutoDismiss()
+            print("[LiveActivity] 成功启动灵动岛实时活动 (ID: \(activity.id))，常驻等待用户查看")
             return true
         } catch {
             print("[LiveActivity] 启动实时活动失败: \(error.localizedDescription)")
@@ -114,8 +135,12 @@ public final class LiveActivityManager: ObservableObject {
         missCount: Int,
         actionType: String
     ) {
+        self.lastReceivedMessage = message
+        self.lastSenderName = senderName
+        self.lastEmoji = emoji
+        self.shouldDismissOnAppExit = false // 新消息刷新，重置为未读常驻
+
         guard let activity = currentActivity else {
-            // 若未启动则直接启动
             startActivity(
                 senderName: senderName,
                 partnerName: partnerName,
@@ -147,17 +172,11 @@ public final class LiveActivityManager: ObservableObject {
                 ActivityContent(state: updatedState, staleDate: nil),
                 alertConfiguration: alertConfig
             )
-            await MainActor.run {
-                self.scheduleAutoDismiss()
-            }
         }
     }
 
-    /// 结束实时活动
+    /// 结束实时活动（退出应用或手动消除）
     public func endActivity() {
-        dismissTask?.cancel()
-        dismissTask = nil
-
         guard let activity = currentActivity else { return }
 
         Task {
@@ -165,23 +184,9 @@ public final class LiveActivityManager: ObservableObject {
             await MainActor.run {
                 self.currentActivity = nil
                 self.isActivityActive = false
+                self.shouldDismissOnAppExit = false
+                print("[LiveActivity] 灵动岛提醒已完全消除")
             }
-        }
-    }
-
-    private var dismissTask: Task<Void, Never>?
-
-    /// 自动定时收起灵动岛（默认 15 秒后优雅淡出）
-    private func scheduleAutoDismiss() {
-        dismissTask?.cancel()
-        let seconds = PairSession.shared.autoDismissSeconds
-        guard seconds > 0 else { return } // 0 表示常驻，不自动退出
-
-        dismissTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
-            guard !Task.isCancelled else { return }
-            print("[LiveActivity] 定时达到 (\(seconds)s)，自动收起灵动岛")
-            self?.endActivity()
         }
     }
 }

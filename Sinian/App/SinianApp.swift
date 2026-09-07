@@ -7,6 +7,7 @@ import SwiftUI
 
 @main
 struct SinianApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var pairSession = PairSession.shared
     @StateObject private var liveActivityManager = LiveActivityManager.shared
     @StateObject private var syncService = SyncService.shared
@@ -21,11 +22,13 @@ struct SinianApp: App {
                     // 检查当前是否有正在进行的实时活动
                     liveActivityManager.checkExistingActivity()
 
-                    // 自动检查并升级真实设备的服务器地址为当前局域网 IP
+                    // 自动检查并升级设备服务器地址
                     #if !targetEnvironment(simulator)
                     if pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") {
                         pairSession.serverURL = "ws://172.20.10.12:8080"
                     }
+                    #else
+                    pairSession.serverURL = "ws://127.0.0.1:8080"
                     #endif
 
                     if pairSession.pairCode.isEmpty {
@@ -36,10 +39,48 @@ struct SinianApp: App {
                     // 启动自动连接信令服务
                     syncService.connect(url: pairSession.serverURL, pairCode: pairSession.pairCode)
                 }
+                .onChange(of: scenePhase) { oldPhase, newPhase in
+                    switch newPhase {
+                    case .active:
+                        // 用户打开/进入应用
+                        print("[SinianApp] 应用进入前台活跃态")
+                        syncService.endBackgroundExecution()
+                        if liveActivityManager.isActivityActive {
+                            // 标记已查看消息，为下次退出应用时自动消除做好准备
+                            liveActivityManager.markMessageAsViewed()
+                        }
+                    case .background:
+                        // 用户上滑退出/回到桌面
+                        print("[SinianApp] 应用退入后台 (桌面)")
+                        syncService.beginBackgroundExecution()
+                        if liveActivityManager.shouldDismissOnAppExit {
+                            print("[SinianApp] 用户已查看消息并退出应用，立即收起灵动岛提醒")
+                            liveActivityManager.endActivity()
+                        }
+                    case .inactive:
+                        break
+                    @unknown default:
+                        break
+                    }
+                }
                 .onOpenURL { url in
                     print("[SinianApp] 收到 URL 协议调用: \(url.absoluteString)")
-                    if url.host == "reply" {
+                    if url.host == "open_message" {
+                        // 用户从灵动岛或系统下拉通知直接点开
+                        liveActivityManager.markMessageAsViewed()
+                        pairSession.hasUnreadReceivedMessage = true
+                        if !liveActivityManager.isActivityActive {
+                            liveActivityManager.startActivity(
+                                senderName: pairSession.partnerNickname,
+                                partnerName: pairSession.myNickname,
+                                message: pairSession.latestReceivedEvent?.message ?? "此刻正在想你 ❤️",
+                                emoji: pairSession.latestReceivedEvent?.emoji ?? "❤️",
+                                missCount: pairSession.todayMissCount
+                            )
+                        }
+                    } else if url.host == "reply" {
                         syncService.sendMiss(message: "我也好想你 ❤️", emoji: "❤️", actionType: "tap")
+                        liveActivityManager.endActivity()
                     } else if url.host == "dismiss" {
                         liveActivityManager.endActivity()
                     } else if url.host == "simulate" {
@@ -60,6 +101,42 @@ struct SinianApp: App {
                         syncService.connect(url: pairSession.serverURL, pairCode: code)
                     }
                 }
+                .onAppear {
+                    UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
+                }
         }
+    }
+}
+
+final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+    static let shared = NotificationDelegate()
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound, .badge])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        Task { @MainActor in
+            PairSession.shared.hasUnreadReceivedMessage = true
+            LiveActivityManager.shared.markMessageAsViewed()
+            if !LiveActivityManager.shared.isActivityActive {
+                LiveActivityManager.shared.startActivity(
+                    senderName: PairSession.shared.partnerNickname,
+                    partnerName: PairSession.shared.myNickname,
+                    message: PairSession.shared.latestReceivedEvent?.message ?? "此刻正在想你 ❤️",
+                    emoji: PairSession.shared.latestReceivedEvent?.emoji ?? "❤️",
+                    missCount: PairSession.shared.todayMissCount
+                )
+            }
+        }
+        completionHandler()
     }
 }

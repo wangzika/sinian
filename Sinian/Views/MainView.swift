@@ -14,6 +14,8 @@ public struct MainView: View {
     @State private var showingTimelineSheet = false
     @State private var toastMessage: String?
     @State private var selectedPreset = "此刻正在强烈想你 ❤️"
+    @State private var showingMessageModal = false
+    @State private var activeMessageEvent: MissEvent?
 
     private let quickPhrases = [
         "此刻正在强烈想你 ❤️",
@@ -44,6 +46,13 @@ public struct MainView: View {
                     VStack(spacing: 24) {
                         // 顶部情侣状态栏
                         headerBar
+
+                        // 如果收到对方的思念，在界面顶部常驻展示醒目卡片
+                        if let event = pairSession.latestReceivedEvent, !event.isFromMe {
+                            receivedMessageBanner(event: event)
+                                .padding(.horizontal, 16)
+                                .padding(.top, -8)
+                        }
 
                         // 未双人联机时的状态引导
                         if !syncService.partnerOnline {
@@ -117,6 +126,23 @@ public struct MainView: View {
                     .padding(.top, 16)
                     .zIndex(100)
                 }
+
+                // 核心：点开灵动岛进入 App 时弹出的思念专属卡片
+                if showingMessageModal, let event = activeMessageEvent {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                showingMessageModal = false
+                                pairSession.hasUnreadReceivedMessage = false
+                            }
+                        }
+
+                    messageModalView(event: event)
+                        .transition(.scale(scale: 0.85).combined(with: .opacity))
+                        .zIndex(200)
+                }
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showingPairingSheet) {
@@ -125,6 +151,29 @@ public struct MainView: View {
             .sheet(isPresented: $showingTimelineSheet) {
                 MemoryTimelineView()
             }
+            .onAppear {
+                checkAndPresentUnreadMessage()
+            }
+            .onChange(of: pairSession.hasUnreadReceivedMessage) { _, hasUnread in
+                if hasUnread {
+                    checkAndPresentUnreadMessage()
+                }
+            }
+        }
+    }
+
+    /// 检查未读消息并弹出展示，同时标记已查看
+    private func checkAndPresentUnreadMessage() {
+        if let event = pairSession.latestReceivedEvent, !event.isFromMe, pairSession.hasUnreadReceivedMessage {
+            activeMessageEvent = event
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                showingMessageModal = true
+            }
+            // 标记灵动岛已在 App 中被查看，准备在退出应用时销毁
+            activityManager.markMessageAsViewed()
+            HapticManager.shared.playHeartbeat()
+        } else if activityManager.isActivityActive {
+            activityManager.markMessageAsViewed()
         }
     }
 
@@ -261,5 +310,155 @@ public struct MainView: View {
                 }
             }
         }
+    }
+
+    /// 伴侣最新思念提示卡片
+    private func receivedMessageBanner(event: MissEvent) -> some View {
+        Button(action: {
+            activeMessageEvent = event
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                showingMessageModal = true
+            }
+            activityManager.markMessageAsViewed()
+        }) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.pink.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Text(event.emoji)
+                        .font(.system(size: 24))
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text("\(event.senderName) 的思念")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.pink)
+                        Spacer()
+                        Text(event.timestamp, style: .time)
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Text(event.message)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.secondary.opacity(0.6))
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.92))
+                    .shadow(color: Color.pink.opacity(0.12), radius: 8, x: 0, y: 3)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 点开灵动岛进入 App 时弹出的浪漫想念卡片
+    private func messageModalView(event: MissEvent) -> some View {
+        VStack(spacing: 20) {
+            // 顶部爱心光晕与表情
+            ZStack {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [Color.pink.opacity(0.35), Color.pink.opacity(0.05)],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 50
+                        )
+                    )
+                    .frame(width: 90, height: 90)
+
+                Text(event.emoji)
+                    .font(.system(size: 46))
+            }
+            .padding(.top, 8)
+
+            // 发送者与时间
+            VStack(spacing: 4) {
+                Text("\(event.senderName) 想你啦！")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+
+                Text(event.timestamp, style: .time)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+
+            // 寄语内容展示框
+            VStack(spacing: 8) {
+                Text("“\(event.message)”")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.pink.opacity(0.08))
+                    )
+            }
+
+            // 操作按钮组
+            HStack(spacing: 12) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        showingMessageModal = false
+                        pairSession.hasUnreadReceivedMessage = false
+                    }
+                    activityManager.markMessageAsViewed()
+                }) {
+                    Text("我知道啦")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(12)
+                }
+
+                Button(action: {
+                    sendMissAction(emoji: "❤️", isSuper: false)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        showingMessageModal = false
+                        pairSession.hasUnreadReceivedMessage = false
+                    }
+                    activityManager.markMessageAsViewed()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "heart.fill")
+                        Text("我也想你")
+                    }
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [.pink, .purple],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(12)
+                }
+            }
+        }
+        .padding(24)
+        .frame(maxWidth: 320)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(UIColor.systemBackground))
+                .shadow(color: Color.black.opacity(0.2), radius: 24, x: 0, y: 10)
+        )
     }
 }
