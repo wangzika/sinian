@@ -6,8 +6,10 @@
 //
 
 import Foundation
+#if canImport(ActivityKit)
 import ActivityKit
 
+@available(iOS 16.2, *)
 public struct MissYouAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         public var senderName: String         // 发送方昵称（如 "宝贝"）
@@ -49,3 +51,4 @@ public struct MissYouAttributes: ActivityAttributes {
         self.startedAt = startedAt
     }
 }
+#endif

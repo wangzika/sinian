@@ -18,7 +18,7 @@ public struct MemoryTimelineView: View {
     public init() {}
 
     public var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List {
                 // 顶部统计
                 Section {

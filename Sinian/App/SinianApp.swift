@@ -37,7 +37,7 @@ struct SinianApp: App {
                     // 启动自动连接信令服务
                     syncService.connect(url: pairSession.serverURL, pairCode: pairSession.pairCode)
                 }
-                .onChange(of: scenePhase) { oldPhase, newPhase in
+                .onChange(of: scenePhase) { newPhase in
                     switch newPhase {
                     case .active:
                         // App 激活到前台

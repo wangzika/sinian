@@ -16,7 +16,7 @@ public struct PairingView: View {
     public init() {}
 
     public var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             Form {
                 Section(header: Text("情侣称呼")) {
                     HStack {

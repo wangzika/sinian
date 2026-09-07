@@ -4,7 +4,9 @@
 //
 
 import Foundation
+#if canImport(ActivityKit)
 import ActivityKit
+#endif
 import SwiftUI
 import Combine
 
@@ -12,7 +14,14 @@ import Combine
 public final class LiveActivityManager: ObservableObject {
     public static let shared = LiveActivityManager()
 
-    @Published public private(set) var currentActivity: Activity<MissYouAttributes>?
+    #if canImport(ActivityKit)
+    private var _activityStorage: Any?
+    @available(iOS 16.2, *)
+    public var currentActivity: Activity<MissYouAttributes>? {
+        get { _activityStorage as? Activity<MissYouAttributes> }
+        set { _activityStorage = newValue }
+    }
+    #endif
     @Published public var isActivityActive: Bool = false
     @Published public var lastPushToken: String?
     
@@ -42,7 +51,7 @@ public final class LiveActivityManager: ObservableObject {
 
     /// 检查当前是否已有正在运行的想念实时活动
     public func checkExistingActivity() {
-        if #available(iOS 16.1, *) {
+        if #available(iOS 16.2, *) {
             for act in Activity<MissYouAttributes>.activities {
                 print("[LiveActivity] 系统中活动 ID: \(act.id), 状态: \(act.activityState)")
             }
@@ -65,6 +74,9 @@ public final class LiveActivityManager: ObservableObject {
         actionType: String = "tap",
         isUnread: Bool = true
     ) -> Bool {
+        guard #available(iOS 16.2, *) else {
+            return false
+        }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("[LiveActivity] 实时活动未被系统或用户允许开启 (areActivitiesEnabled: false)")
             return false
@@ -143,6 +155,7 @@ public final class LiveActivityManager: ObservableObject {
         myName: String = "我",
         missCount: Int = 0
     ) {
+        guard #available(iOS 16.2, *) else { return }
         checkExistingActivity()
         if let current = currentActivity, current.activityState == .active {
             print("[LiveActivity] 灵动岛已存在活跃心跳连线: \(current.id)")
@@ -171,6 +184,7 @@ public final class LiveActivityManager: ObservableObject {
         actionType: String,
         isUnread: Bool = true
     ) {
+        guard #available(iOS 16.2, *) else { return }
         self.lastReceivedMessage = message
         self.lastSenderName = senderName
         self.lastEmoji = emoji
@@ -235,6 +249,7 @@ public final class LiveActivityManager: ObservableObject {
         myName: String,
         missCount: Int
     ) {
+        guard #available(iOS 16.2, *) else { return }
         guard let activity = currentActivity else { return }
         self.shouldDismissOnAppExit = false
 
@@ -257,6 +272,7 @@ public final class LiveActivityManager: ObservableObject {
 
     /// 结束实时活动（完全清除灵动岛，不留下任何胶囊）
     public func endActivity() {
+        guard #available(iOS 16.2, *) else { return }
         Task {
             for act in Activity<MissYouAttributes>.activities {
                 await act.end(nil, dismissalPolicy: .immediate)

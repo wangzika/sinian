@@ -5,6 +5,27 @@
 
 import SwiftUI
 
+public struct CompatNavigationStack<Content: View>: View {
+    private let content: Content
+
+    public init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    public var body: some View {
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(.stack)
+        }
+    }
+}
+
 public struct MainView: View {
     @ObservedObject var pairSession = PairSession.shared
     @ObservedObject var syncService = SyncService.shared
@@ -29,7 +50,7 @@ public struct MainView: View {
     public init() {}
 
     public var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             ZStack {
                 // 背景渐变
                 LinearGradient(
@@ -155,12 +176,12 @@ public struct MainView: View {
             .onAppear {
                 checkAndPresentUnreadMessage()
             }
-            .onChange(of: scenePhase) { _, newPhase in
+            .onChange(of: scenePhase) { newPhase in
                 if newPhase == .active {
                     checkAndPresentUnreadMessage()
                 }
             }
-            .onChange(of: pairSession.hasUnreadReceivedMessage) { _, hasUnread in
+            .onChange(of: pairSession.hasUnreadReceivedMessage) { hasUnread in
                 if hasUnread {
                     checkAndPresentUnreadMessage()
                 }
