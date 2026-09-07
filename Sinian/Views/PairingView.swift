@@ -54,24 +54,44 @@ public struct PairingView: View {
                             .textInputAutocapitalization(.never)
                     }
 
-                    HStack(spacing: 12) {
-                        Spacer()
+                    VStack(alignment: .leading, spacing: 8) {
                         Button(action: {
-                            inputServerURL = "ws://192.168.3.36:8080"
+                            inputServerURL = "wss://sinian-server.onrender.com"
                             HapticManager.shared.playTap()
                         }) {
-                            Text("填入 Mac Wi-Fi (192.168.3.36)")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.pink)
+                            HStack {
+                                Image(systemName: "cloud.fill")
+                                    .foregroundColor(.purple)
+                                Text("填入免梯云端服务 (Render 推荐)")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.purple)
+                                Spacer()
+                                Text("公网异地 7x24h")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 4)
                         }
-                        
-                        Button(action: {
-                            inputServerURL = "ws://172.20.10.12:8080"
-                            HapticManager.shared.playTap()
-                        }) {
-                            Text("热点 (172.20.10.12)")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.blue)
+
+                        HStack(spacing: 12) {
+                            Spacer()
+                            Button(action: {
+                                inputServerURL = "ws://192.168.3.36:8080"
+                                HapticManager.shared.playTap()
+                            }) {
+                                Text("局域网 (192.168.3.36)")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Button(action: {
+                                inputServerURL = "ws://172.20.10.12:8080"
+                                HapticManager.shared.playTap()
+                            }) {
+                                Text("热点 (172.20.10.12)")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
 
@@ -109,7 +129,7 @@ public struct PairingView: View {
                     }
                 }
 
-                Section(header: Text("联机指南"), footer: Text("📌 手机与电脑模拟器联机：\n1. 手机和 Mac 保持在同一 Wi-Fi 或手机热点下\n2. 信令服务填入：ws://172.20.10.12:8080\n3. 配对暗号必须完全一致（例如 LOVE-520）\n4. 点击『连接并配对』，状态变为『伴侣在线直连』即可互相触发灵动岛！")) {
+                Section(header: Text("联机指南"), footer: Text("📌 随时随地异地/公网联机：\n1. 默认已配置云端免梯服务：wss://sinian-server.onrender.com\n2. 双方手机保持【配对暗号】完全一致（例如 LOVE-520）\n3. 无论身处何地、使用 4G/5G 移动流量还是 Wi-Fi，无需电脑开机，灵动岛与锁屏通知即时送达！")) {
                     EmptyView()
                 }
             }
@@ -124,15 +144,11 @@ public struct PairingView: View {
             }
             .onAppear {
                 inputPairCode = pairSession.pairCode.isEmpty ? "LOVE-520" : pairSession.pairCode
-                #if !targetEnvironment(simulator)
-                if pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") {
-                    inputServerURL = "ws://172.20.10.12:8080"
+                if pairSession.serverURL.contains("192.168.") || pairSession.serverURL.contains("172.20.") || pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") {
+                    inputServerURL = "wss://sinian-server.onrender.com"
                 } else {
                     inputServerURL = pairSession.serverURL
                 }
-                #else
-                inputServerURL = pairSession.serverURL
-                #endif
             }
         }
     }

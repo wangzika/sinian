@@ -24,14 +24,10 @@ struct SinianApp: App {
                     // 检查当前是否有正在进行的实时活动
                     liveActivityManager.checkExistingActivity()
 
-                    // 自动配置设备服务器地址
-                    #if !targetEnvironment(simulator)
-                    if pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") || pairSession.serverURL.contains("172.20.10.12") {
-                        pairSession.serverURL = "ws://192.168.3.36:8080"
+                    // 自动配置设备服务器地址（默认连接 Render 公网云端服务）
+                    if pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") || pairSession.serverURL.contains("172.20.") || pairSession.serverURL.contains("192.168.") {
+                        pairSession.serverURL = "wss://sinian-server.onrender.com"
                     }
-                    #else
-                    pairSession.serverURL = "ws://127.0.0.1:8080"
-                    #endif
 
                     if pairSession.pairCode.isEmpty {
                         pairSession.pairCode = "LOVE-520"
@@ -46,8 +42,8 @@ struct SinianApp: App {
                     case .active:
                         // App 激活到前台
                         print("[SinianApp] 应用进入前台 (Active)")
-                        if pairSession.serverURL.contains("172.20.10.12") {
-                            pairSession.serverURL = "ws://192.168.3.36:8080"
+                        if pairSession.serverURL.contains("172.20.") || pairSession.serverURL.contains("192.168.") || pairSession.serverURL.contains("localhost") {
+                            pairSession.serverURL = "wss://sinian-server.onrender.com"
                         }
                         if pairSession.isPaired && !pairSession.pairCode.isEmpty && !syncService.isConnected {
                             print("[SinianApp] 自动建立信令长连接: \(pairSession.serverURL) [\(pairSession.pairCode)]")

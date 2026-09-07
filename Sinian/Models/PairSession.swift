@@ -12,7 +12,7 @@ public final class PairSession: ObservableObject {
     @AppStorage("partnerNickname") public var partnerNickname: String = "猪猪"
     @AppStorage("pairCode") public var pairCode: String = "LOVE-520"
     @AppStorage("isPaired") public var isPaired: Bool = true
-    @AppStorage("serverURL") public var serverURL: String = "ws://192.168.3.36:8080"
+    @AppStorage("serverURL") public var serverURL: String = "wss://sinian-server.onrender.com"
     @AppStorage("autoDismissSeconds") public var autoDismissSeconds: Int = 15
 
     @Published public var isConnectedToServer: Bool = false
@@ -27,8 +27,9 @@ public final class PairSession: ObservableObject {
 
     private init() {
         loadHistory()
-        if serverURL.contains("172.20.10.12") {
-            serverURL = "ws://192.168.3.36:8080"
+        // 自动迁移旧局域网地址到公网云端服务 (Render)
+        if serverURL.contains("192.168.") || serverURL.contains("172.20.") || serverURL.contains("localhost") || serverURL.contains("127.0.0.1") {
+            serverURL = "wss://sinian-server.onrender.com"
         }
     }
 

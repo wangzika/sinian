@@ -148,8 +148,12 @@ public final class SyncService: NSObject, ObservableObject {
         self.currentPairCode = pairCode
 
         var cleanURL = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !cleanURL.hasPrefix("ws://") && !cleanURL.hasPrefix("wss://") {
-            cleanURL = "ws://\(cleanURL)"
+        if cleanURL.hasPrefix("https://") {
+            cleanURL = "wss://" + cleanURL.dropFirst(8)
+        } else if cleanURL.hasPrefix("http://") {
+            cleanURL = "ws://" + cleanURL.dropFirst(7)
+        } else if !cleanURL.hasPrefix("ws://") && !cleanURL.hasPrefix("wss://") {
+            cleanURL = "wss://\(cleanURL)"
         }
         guard let url = URL(string: "\(cleanURL)?pairCode=\(pairCode)") else { return }
         
