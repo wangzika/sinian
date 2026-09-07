@@ -415,7 +415,11 @@ public struct MainView: View {
                         showingMessageModal = false
                         pairSession.hasUnreadReceivedMessage = false
                     }
-                    activityManager.markMessageAsViewed()
+                    activityManager.setActivityToIdle(
+                        partnerName: pairSession.partnerNickname,
+                        myName: pairSession.myNickname,
+                        missCount: pairSession.todayMissCount
+                    )
                 }) {
                     Text("我知道啦")
                         .font(.system(size: 14, weight: .medium))
@@ -432,7 +436,11 @@ public struct MainView: View {
                         showingMessageModal = false
                         pairSession.hasUnreadReceivedMessage = false
                     }
-                    activityManager.markMessageAsViewed()
+                    activityManager.setActivityToIdle(
+                        partnerName: pairSession.partnerNickname,
+                        myName: pairSession.myNickname,
+                        missCount: pairSession.todayMissCount
+                    )
                 }) {
                     HStack(spacing: 6) {
                         Image(systemName: "heart.fill")

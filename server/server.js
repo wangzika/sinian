@@ -36,12 +36,17 @@ const server = http.createServer((req, res) => {
 
   // 健康检查与状态
   if (parsedUrl.pathname === '/health' || parsedUrl.pathname === '/') {
+    const roomDetails = {};
+    for (const [code, clients] of rooms.entries()) {
+      roomDetails[code] = clients.size;
+    }
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
       status: 'ok',
       service: 'Sinian 情侣信令服务',
       time: new Date().toISOString(),
-      activeRooms: rooms.size
+      activeRooms: rooms.size,
+      roomDetails
     }));
     return;
   }

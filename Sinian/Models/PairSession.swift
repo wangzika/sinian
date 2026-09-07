@@ -12,7 +12,7 @@ public final class PairSession: ObservableObject {
     @AppStorage("partnerNickname") public var partnerNickname: String = "猪猪"
     @AppStorage("pairCode") public var pairCode: String = "LOVE-520"
     @AppStorage("isPaired") public var isPaired: Bool = true
-    @AppStorage("serverURL") public var serverURL: String = "ws://172.20.10.12:8080"
+    @AppStorage("serverURL") public var serverURL: String = "ws://192.168.3.36:8080"
     @AppStorage("autoDismissSeconds") public var autoDismissSeconds: Int = 15
 
     @Published public var isConnectedToServer: Bool = false
@@ -27,6 +27,9 @@ public final class PairSession: ObservableObject {
 
     private init() {
         loadHistory()
+        if serverURL.contains("172.20.10.12") {
+            serverURL = "ws://192.168.3.36:8080"
+        }
     }
 
     public func recordEvent(_ event: MissEvent) {

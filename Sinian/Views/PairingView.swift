@@ -54,15 +54,24 @@ public struct PairingView: View {
                             .textInputAutocapitalization(.never)
                     }
 
-                    HStack {
+                    HStack(spacing: 12) {
                         Spacer()
+                        Button(action: {
+                            inputServerURL = "ws://192.168.3.36:8080"
+                            HapticManager.shared.playTap()
+                        }) {
+                            Text("填入 Mac Wi-Fi (192.168.3.36)")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.pink)
+                        }
+                        
                         Button(action: {
                             inputServerURL = "ws://172.20.10.12:8080"
                             HapticManager.shared.playTap()
                         }) {
-                            Text("填入 Mac 地址 (172.20.10.12)")
+                            Text("热点 (172.20.10.12)")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.pink)
+                                .foregroundColor(.blue)
                         }
                     }
 

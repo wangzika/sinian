@@ -17,6 +17,7 @@ public struct MissYouAttributes: ActivityAttributes {
         public var missCount: Int             // 今日累计想念次数
         public var actionType: String         // 互动类型: "tap", "super_miss", "hug", "kiss"
         public var lastSentAt: Date           // 发送时间
+        public var isUnread: Bool             // 是否处于未读思念提醒状态
 
         public init(
             senderName: String = "另一半",
@@ -25,7 +26,8 @@ public struct MissYouAttributes: ActivityAttributes {
             emoji: String = "❤️",
             missCount: Int = 1,
             actionType: String = "tap",
-            lastSentAt: Date = Date()
+            lastSentAt: Date = Date(),
+            isUnread: Bool = true
         ) {
             self.senderName = senderName
             self.partnerName = partnerName
@@ -34,6 +36,7 @@ public struct MissYouAttributes: ActivityAttributes {
             self.missCount = missCount
             self.actionType = actionType
             self.lastSentAt = lastSentAt
+            self.isUnread = isUnread
         }
     }
 

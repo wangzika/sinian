@@ -19,10 +19,16 @@ struct SinianIslandLiveActivity: Widget {
                     VStack(spacing: 3) {
                         ZStack {
                             Circle()
-                                .fill(Color.pink.opacity(0.3))
-                                .frame(width: 38, height: 38)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.pink.opacity(0.6), Color.purple.opacity(0.4)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 40, height: 40)
                             Text(context.state.emoji)
-                                .font(.system(size: 20))
+                                .font(.system(size: 22))
                         }
                         Text(context.state.senderName)
                             .font(.system(size: 11, weight: .bold))
@@ -36,11 +42,24 @@ struct SinianIslandLiveActivity: Widget {
                     VStack(spacing: 3) {
                         ZStack {
                             Circle()
-                                .fill(Color.purple.opacity(0.3))
-                                .frame(width: 38, height: 38)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.purple.opacity(0.6), Color.pink.opacity(0.4)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 40, height: 40)
                             Image(systemName: "heart.fill")
-                                .font(.system(size: 18))
-                                .foregroundColor(.pink)
+                                .font(.system(size: 19))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.pink, .red],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .symbolEffect(.pulse, options: .repeating)
                         }
                         Text(context.state.partnerName)
                             .font(.system(size: 11, weight: .bold))
@@ -55,12 +74,20 @@ struct SinianIslandLiveActivity: Widget {
                         Image(systemName: "sparkles")
                             .font(.system(size: 10))
                             .foregroundColor(.yellow)
+                            .symbolEffect(.variableColor.iterative)
                         Text("心跳连线")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.pink)
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.pink, .purple],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                         Image(systemName: "sparkles")
                             .font(.system(size: 10))
                             .foregroundColor(.yellow)
+                            .symbolEffect(.variableColor.iterative)
                     }
                 }
 
@@ -68,17 +95,19 @@ struct SinianIslandLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(spacing: 8) {
                         Text(context.state.message)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
-                            .padding(.horizontal, 8)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
 
                         HStack {
                             HStack(spacing: 4) {
                                 Image(systemName: "flame.fill")
                                     .font(.system(size: 11))
                                     .foregroundColor(.orange)
+                                    .symbolEffect(.bounce, value: context.state.missCount)
                                 Text("今日想念 \(context.state.missCount) 次")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(.secondary)
@@ -89,9 +118,9 @@ struct SinianIslandLiveActivity: Widget {
                             HStack(spacing: 8) {
                                 Link(destination: URL(string: "sinian://dismiss")!) {
                                     HStack(spacing: 4) {
-                                        Image(systemName: "xmark.circle")
+                                        Image(systemName: "checkmark.circle.fill")
                                             .font(.system(size: 11))
-                                        Text("收起")
+                                        Text("我知道啦")
                                             .font(.system(size: 11, weight: .medium))
                                     }
                                     .foregroundColor(.white.opacity(0.85))
@@ -115,7 +144,13 @@ struct SinianIslandLiveActivity: Widget {
                                     .padding(.vertical, 6)
                                     .background(
                                         Capsule()
-                                            .fill(Color.pink)
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [.pink, .red],
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                            )
                                     )
                                 }
                             }
@@ -125,39 +160,52 @@ struct SinianIslandLiveActivity: Widget {
                     .padding(.horizontal, 6)
                 }
             } compactLeading: {
-                // 紧凑态左侧：爱心 + 对方昵称（即使用户开热点导致右侧被分割，左侧文字依然一目了然！）
-                HStack(spacing: 3) {
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 11))
-                        .foregroundColor(.pink)
-                    Text(context.state.senderName)
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
+                // 紧凑态左侧：未读思念时才显示跳动爱心与昵称，已读后完全隐藏不占岛
+                if context.state.isUnread {
+                    HStack(spacing: 4) {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.pink)
+                            .symbolEffect(.pulse, options: .repeating)
+                        Text(context.state.senderName)
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                    }
+                    .padding(.leading, 4)
                 }
-                .padding(.leading, 4)
             } compactTrailing: {
-                // 紧凑态右侧：表情与想念提示
-                HStack(spacing: 2) {
-                    Text(context.state.emoji)
-                        .font(.system(size: 11))
-                    Text("想你啦")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.pink)
+                // 紧凑态右侧：未读思念时高亮显示表情与“想你啦”，已读后完全隐藏
+                if context.state.isUnread {
+                    HStack(spacing: 3) {
+                        Text(context.state.emoji)
+                            .font(.system(size: 12))
+                        Text("想你啦")
+                            .font(.system(size: 11, weight: .heavy))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.pink, .red],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                    }
+                    .padding(.trailing, 4)
                 }
-                .padding(.trailing, 4)
             } minimal: {
-                // 极小态（双岛分割模式）：爱心 + 对方昵称首字
-                HStack(spacing: 2) {
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 10))
-                        .foregroundColor(.pink)
-                    Text(String(context.state.senderName.prefix(1)))
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.white)
+                // 极小态：未读时显示跳动爱心与表情，已读后隐藏
+                if context.state.isUnread {
+                    HStack(spacing: 2) {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 10))
+                            .foregroundColor(.pink)
+                            .symbolEffect(.pulse, options: .repeating)
+                        Text(context.state.emoji)
+                            .font(.system(size: 9))
+                    }
                 }
             }
-            .keylineTint(.pink)
+            .keylineTint(context.state.isUnread ? .pink : .clear)
             .widgetURL(URL(string: "sinian://open_message")!)
         }
     }

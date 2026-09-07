@@ -19,13 +19,15 @@ struct SinianApp: App {
                 .environmentObject(liveActivityManager)
                 .environmentObject(syncService)
                 .onAppear {
+                    UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
+
                     // 检查当前是否有正在进行的实时活动
                     liveActivityManager.checkExistingActivity()
 
-                    // 自动检查并升级设备服务器地址
+                    // 自动配置设备服务器地址
                     #if !targetEnvironment(simulator)
-                    if pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") {
-                        pairSession.serverURL = "ws://172.20.10.12:8080"
+                    if pairSession.serverURL.contains("localhost") || pairSession.serverURL.contains("127.0.0.1") || pairSession.serverURL.contains("172.20.10.12") {
+                        pairSession.serverURL = "ws://192.168.3.36:8080"
                     }
                     #else
                     pairSession.serverURL = "ws://127.0.0.1:8080"
@@ -42,20 +44,32 @@ struct SinianApp: App {
                 .onChange(of: scenePhase) { oldPhase, newPhase in
                     switch newPhase {
                     case .active:
-                        // 用户打开/进入应用
-                        print("[SinianApp] 应用进入前台活跃态")
-                        syncService.endBackgroundExecution()
-                        if liveActivityManager.isActivityActive {
-                            // 标记已查看消息，为下次退出应用时自动消除做好准备
-                            liveActivityManager.markMessageAsViewed()
+                        // App 激活到前台
+                        print("[SinianApp] 应用进入前台 (Active)")
+                        if pairSession.serverURL.contains("172.20.10.12") {
+                            pairSession.serverURL = "ws://192.168.3.36:8080"
                         }
+                        if pairSession.isPaired && !pairSession.pairCode.isEmpty && !syncService.isConnected {
+                            print("[SinianApp] 自动建立信令长连接: \(pairSession.serverURL) [\(pairSession.pairCode)]")
+                            syncService.connect(url: pairSession.serverURL, pairCode: pairSession.pairCode)
+                        }
+                        liveActivityManager.ensureActivityActive(
+                            pairId: pairSession.pairCode,
+                            partnerName: pairSession.partnerNickname,
+                            myName: pairSession.myNickname,
+                            missCount: pairSession.todayMissCount
+                        )
                     case .background:
                         // 用户上滑退出/回到桌面
                         print("[SinianApp] 应用退入后台 (桌面)")
                         syncService.beginBackgroundExecution()
                         if liveActivityManager.shouldDismissOnAppExit {
-                            print("[SinianApp] 用户已查看消息并退出应用，立即收起灵动岛提醒")
-                            liveActivityManager.endActivity()
+                            print("[SinianApp] 用户已查看消息并退出应用，收起灵动岛为隐形待命")
+                            liveActivityManager.setActivityToIdle(
+                                partnerName: pairSession.partnerNickname,
+                                myName: pairSession.myNickname,
+                                missCount: pairSession.todayMissCount
+                            )
                         }
                     case .inactive:
                         break
@@ -66,23 +80,21 @@ struct SinianApp: App {
                 .onOpenURL { url in
                     print("[SinianApp] 收到 URL 协议调用: \(url.absoluteString)")
                     if url.host == "open_message" {
-                        // 用户从灵动岛或系统下拉通知直接点开
                         liveActivityManager.markMessageAsViewed()
                         pairSession.hasUnreadReceivedMessage = true
-                        if !liveActivityManager.isActivityActive {
-                            liveActivityManager.startActivity(
-                                senderName: pairSession.partnerNickname,
-                                partnerName: pairSession.myNickname,
-                                message: pairSession.latestReceivedEvent?.message ?? "此刻正在想你 ❤️",
-                                emoji: pairSession.latestReceivedEvent?.emoji ?? "❤️",
-                                missCount: pairSession.todayMissCount
-                            )
-                        }
                     } else if url.host == "reply" {
                         syncService.sendMiss(message: "我也好想你 ❤️", emoji: "❤️", actionType: "tap")
-                        liveActivityManager.endActivity()
+                        liveActivityManager.setActivityToIdle(
+                            partnerName: pairSession.partnerNickname,
+                            myName: pairSession.myNickname,
+                            missCount: pairSession.todayMissCount
+                        )
                     } else if url.host == "dismiss" {
-                        liveActivityManager.endActivity()
+                        liveActivityManager.setActivityToIdle(
+                            partnerName: pairSession.partnerNickname,
+                            myName: pairSession.myNickname,
+                            missCount: pairSession.todayMissCount
+                        )
                     } else if url.host == "simulate" {
                         syncService.simulatePartnerMiss()
                     } else if url.host == "start" {
@@ -91,7 +103,8 @@ struct SinianApp: App {
                             partnerName: pairSession.myNickname,
                             message: "此刻正在强烈想你 ❤️",
                             emoji: "❤️",
-                            missCount: pairSession.todayMissCount
+                            missCount: pairSession.todayMissCount,
+                            isUnread: true
                         )
                     } else if url.host == "pair" {
                         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
@@ -100,9 +113,6 @@ struct SinianApp: App {
                         pairSession.isPaired = true
                         syncService.connect(url: pairSession.serverURL, pairCode: code)
                     }
-                }
-                .onAppear {
-                    UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
                 }
         }
     }
@@ -116,7 +126,7 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        completionHandler([.banner, .sound, .badge])
+        completionHandler([.sound])
     }
 
     func userNotificationCenter(
@@ -127,15 +137,6 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         Task { @MainActor in
             PairSession.shared.hasUnreadReceivedMessage = true
             LiveActivityManager.shared.markMessageAsViewed()
-            if !LiveActivityManager.shared.isActivityActive {
-                LiveActivityManager.shared.startActivity(
-                    senderName: PairSession.shared.partnerNickname,
-                    partnerName: PairSession.shared.myNickname,
-                    message: PairSession.shared.latestReceivedEvent?.message ?? "此刻正在想你 ❤️",
-                    emoji: PairSession.shared.latestReceivedEvent?.emoji ?? "❤️",
-                    missCount: PairSession.shared.todayMissCount
-                )
-            }
         }
         completionHandler()
     }

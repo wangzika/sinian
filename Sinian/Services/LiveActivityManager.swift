@@ -57,7 +57,8 @@ public final class LiveActivityManager: ObservableObject {
         message: String = "此刻正在强烈想你 ❤️",
         emoji: String = "❤️",
         missCount: Int = 1,
-        actionType: String = "tap"
+        actionType: String = "tap",
+        isUnread: Bool = true
     ) -> Bool {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("[LiveActivity] 实时活动未被系统或用户允许开启")
@@ -67,7 +68,7 @@ public final class LiveActivityManager: ObservableObject {
         self.lastReceivedMessage = message
         self.lastSenderName = senderName
         self.lastEmoji = emoji
-        self.shouldDismissOnAppExit = false // 新消息到达，进入未读常驻挂起状态
+        self.shouldDismissOnAppExit = false
 
         // 如果已有正在运行的活动，则直接更新其状态
         if currentActivity != nil {
@@ -77,7 +78,8 @@ public final class LiveActivityManager: ObservableObject {
                 message: message,
                 emoji: emoji,
                 missCount: missCount,
-                actionType: actionType
+                actionType: actionType,
+                isUnread: isUnread
             )
             return true
         }
@@ -90,11 +92,11 @@ public final class LiveActivityManager: ObservableObject {
             emoji: emoji,
             missCount: missCount,
             actionType: actionType,
-            lastSentAt: Date()
+            lastSentAt: Date(),
+            isUnread: isUnread
         )
 
         do {
-            // 本地信令长连接驱动灵动岛，无需 APNs 远端证书 (适配个人免费开发者账号)
             let activityPushType: PushType? = nil
 
             let activity = try Activity<MissYouAttributes>.request(
@@ -105,7 +107,6 @@ public final class LiveActivityManager: ObservableObject {
             self.currentActivity = activity
             self.isActivityActive = true
 
-            // 监听 APNs Push Token 更新 (如有)
             if activityPushType != nil {
                 Task {
                     for await tokenData in activity.pushTokenUpdates {
@@ -118,7 +119,7 @@ public final class LiveActivityManager: ObservableObject {
                     }
                 }
             }
-            print("[LiveActivity] 成功启动灵动岛实时活动 (ID: \(activity.id))，常驻等待用户查看")
+            print("[LiveActivity] 成功启动灵动岛实时活动 (ID: \(activity.id), isUnread: \(isUnread))")
             return true
         } catch {
             print("[LiveActivity] 启动实时活动失败: \(error.localizedDescription)")
@@ -126,19 +127,42 @@ public final class LiveActivityManager: ObservableObject {
         }
     }
 
-    /// 实时刷新灵动岛内容与特效
+    /// 确保灵动岛在前台已就绪待命（前台自动初始化，避免后台无法创建）
+    public func ensureActivityActive(
+        pairId: String = "LOVE-520",
+        partnerName: String = "另一半",
+        myName: String = "我",
+        missCount: Int = 0
+    ) {
+        checkExistingActivity()
+        guard currentActivity == nil else { return }
+        print("[LiveActivity] 前台自动建立灵动岛心跳连线")
+        startActivity(
+            pairId: pairId,
+            senderName: partnerName,
+            partnerName: myName,
+            message: "心跳连线中",
+            emoji: "❤️",
+            missCount: missCount,
+            actionType: "idle",
+            isUnread: false
+        )
+    }
+
+    /// 实时刷新灵动岛内容与强提醒动画
     public func updateActivity(
         senderName: String,
         partnerName: String,
         message: String,
         emoji: String,
         missCount: Int,
-        actionType: String
+        actionType: String,
+        isUnread: Bool = true
     ) {
         self.lastReceivedMessage = message
         self.lastSenderName = senderName
         self.lastEmoji = emoji
-        self.shouldDismissOnAppExit = false // 新消息刷新，重置为未读常驻
+        self.shouldDismissOnAppExit = false
 
         guard let activity = currentActivity else {
             startActivity(
@@ -147,7 +171,8 @@ public final class LiveActivityManager: ObservableObject {
                 message: message,
                 emoji: emoji,
                 missCount: missCount,
-                actionType: actionType
+                actionType: actionType,
+                isUnread: isUnread
             )
             return
         }
@@ -159,33 +184,64 @@ public final class LiveActivityManager: ObservableObject {
             emoji: emoji,
             missCount: missCount,
             actionType: actionType,
-            lastSentAt: Date()
+            lastSentAt: Date(),
+            isUnread: isUnread
         )
 
         Task {
-            let alertConfig = AlertConfiguration(
-                title: LocalizedStringResource(stringLiteral: "\(senderName) 想你啦！"),
-                body: LocalizedStringResource(stringLiteral: message),
-                sound: .default
-            )
+            var alertConfig: AlertConfiguration? = nil
+            if isUnread {
+                alertConfig = AlertConfiguration(
+                    title: LocalizedStringResource(stringLiteral: "\(senderName) 想你啦！"),
+                    body: LocalizedStringResource(stringLiteral: message),
+                    sound: .default
+                )
+            }
             await activity.update(
                 ActivityContent(state: updatedState, staleDate: nil),
                 alertConfiguration: alertConfig
             )
+            print("[LiveActivity] 成功后台更新灵动岛 (isUnread: \(isUnread))")
         }
     }
 
-    /// 结束实时活动（退出应用或手动消除）
-    public func endActivity() {
+    /// 用户在 App 内查阅完后退出，消除灵动岛上的未读“想你啦”提醒，恢复为静默待命状态
+    public func setActivityToIdle(
+        partnerName: String,
+        myName: String,
+        missCount: Int
+    ) {
         guard let activity = currentActivity else { return }
+        self.shouldDismissOnAppExit = false
+
+        let idleState = MissYouAttributes.ContentState(
+            senderName: partnerName,
+            partnerName: myName,
+            message: "心跳连线中",
+            emoji: "❤️",
+            missCount: missCount,
+            actionType: "idle",
+            lastSentAt: Date(),
+            isUnread: false
+        )
 
         Task {
-            await activity.end(nil, dismissalPolicy: .immediate)
+            await activity.update(ActivityContent(state: idleState, staleDate: nil))
+            print("[LiveActivity] 灵动岛思念提醒已消除，恢复为静默连线待命")
+        }
+    }
+
+    /// 结束实时活动（完全清除灵动岛，不留下任何胶囊）
+    public func endActivity() {
+        Task {
+            for act in Activity<MissYouAttributes>.activities {
+                await act.end(nil, dismissalPolicy: .immediate)
+            }
             await MainActor.run {
                 self.currentActivity = nil
                 self.isActivityActive = false
                 self.shouldDismissOnAppExit = false
-                print("[LiveActivity] 灵动岛提醒已完全消除")
+                print("[LiveActivity] 灵动岛提醒已完全注销清除")
             }
         }
     }
