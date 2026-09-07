@@ -95,7 +95,10 @@ const server = http.createServer((req, res) => {
 
 function broadcastToRoom(pairCode, senderWs, payload) {
   const clients = rooms.get(pairCode);
-  if (!clients) return 0;
+  if (!clients) {
+    console.log(`[Broadcast] 房间 [${pairCode}] 不存在`);
+    return 0;
+  }
 
   const messageStr = JSON.stringify(payload);
   let count = 0;
@@ -105,6 +108,7 @@ function broadcastToRoom(pairCode, senderWs, payload) {
       count++;
     }
   }
+  console.log(`[Broadcast] 向房间 [${pairCode}] 广播消息: ${payload.type}, 成功发送给 ${count}/${clients.size} 个客户端`);
   return count;
 }
 
@@ -112,6 +116,7 @@ if (WebSocket) {
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', (ws, req) => {
+    const remote = req.socket.remoteAddress;
     const parsedUrl = url.parse(req.url, true);
     const pairCode = parsedUrl.query.pairCode || 'LOVE-520';
 
@@ -121,7 +126,7 @@ if (WebSocket) {
     const room = rooms.get(pairCode);
     room.add(ws);
 
-    console.log(`[+] 客户端加入房间 [${pairCode}], 当前在线人数: ${room.size}`);
+    console.log(`[+] 客户端 [${remote}] 加入房间 [${pairCode}], 当前在线人数: ${room.size}`);
 
     // 向刚连接的客户端发送房间当前状态
     ws.send(JSON.stringify({

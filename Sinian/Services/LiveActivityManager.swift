@@ -43,8 +43,13 @@ public final class LiveActivityManager: ObservableObject {
     /// 检查当前是否已有正在运行的想念实时活动
     public func checkExistingActivity() {
         if #available(iOS 16.1, *) {
-            currentActivity = Activity<MissYouAttributes>.activities.first
-            isActivityActive = currentActivity != nil
+            for act in Activity<MissYouAttributes>.activities {
+                print("[LiveActivity] 系统中活动 ID: \(act.id), 状态: \(act.activityState)")
+            }
+            // 严格只认当前处于 active 活跃状态的实时活动
+            currentActivity = Activity<MissYouAttributes>.activities.first(where: { $0.activityState == .active })
+            isActivityActive = (currentActivity != nil)
+            print("[LiveActivity] 检查结果 -> 当前活跃活动: \(currentActivity?.id ?? "无") (isActivityActive: \(isActivityActive))")
         }
     }
 
@@ -61,7 +66,7 @@ public final class LiveActivityManager: ObservableObject {
         isUnread: Bool = true
     ) -> Bool {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            print("[LiveActivity] 实时活动未被系统或用户允许开启")
+            print("[LiveActivity] 实时活动未被系统或用户允许开启 (areActivitiesEnabled: false)")
             return false
         }
 
@@ -70,8 +75,9 @@ public final class LiveActivityManager: ObservableObject {
         self.lastEmoji = emoji
         self.shouldDismissOnAppExit = false
 
-        // 如果已有正在运行的活动，则直接更新其状态
-        if currentActivity != nil {
+        // 如果已有正在运行且处于 active 状态的活动，则直接更新其状态
+        if let activity = currentActivity, activity.activityState == .active {
+            print("[LiveActivity] 发现已有活跃活动 \(activity.id)，直接进行内容更新")
             updateActivity(
                 senderName: senderName,
                 partnerName: partnerName,
@@ -83,6 +89,9 @@ public final class LiveActivityManager: ObservableObject {
             )
             return true
         }
+
+        currentActivity = nil
+        isActivityActive = false
 
         let attributes = MissYouAttributes(pairId: pairId)
         let initialContentState = MissYouAttributes.ContentState(
@@ -135,8 +144,11 @@ public final class LiveActivityManager: ObservableObject {
         missCount: Int = 0
     ) {
         checkExistingActivity()
-        guard currentActivity == nil else { return }
-        print("[LiveActivity] 前台自动建立灵动岛心跳连线")
+        if let current = currentActivity, current.activityState == .active {
+            print("[LiveActivity] 灵动岛已存在活跃心跳连线: \(current.id)")
+            return
+        }
+        print("[LiveActivity] 前台无活跃灵动岛连线，立即自动创建")
         startActivity(
             pairId: pairId,
             senderName: partnerName,
@@ -164,7 +176,8 @@ public final class LiveActivityManager: ObservableObject {
         self.lastEmoji = emoji
         self.shouldDismissOnAppExit = false
 
-        guard let activity = currentActivity else {
+        guard let activity = currentActivity, activity.activityState == .active else {
+            print("[LiveActivity] updateActivity 发现当前无活跃活动，转为调用 startActivity")
             startActivity(
                 senderName: senderName,
                 partnerName: partnerName,
@@ -189,6 +202,13 @@ public final class LiveActivityManager: ObservableObject {
         )
 
         Task {
+            var bgTask: UIBackgroundTaskIdentifier = .invalid
+            bgTask = UIApplication.shared.beginBackgroundTask(withName: "ActivityKitLocalUpdate") {
+                if bgTask != .invalid {
+                    UIApplication.shared.endBackgroundTask(bgTask)
+                    bgTask = .invalid
+                }
+            }
             var alertConfig: AlertConfiguration? = nil
             if isUnread {
                 alertConfig = AlertConfiguration(
@@ -202,6 +222,10 @@ public final class LiveActivityManager: ObservableObject {
                 alertConfiguration: alertConfig
             )
             print("[LiveActivity] 成功后台更新灵动岛 (isUnread: \(isUnread))")
+            if bgTask != .invalid {
+                UIApplication.shared.endBackgroundTask(bgTask)
+                bgTask = .invalid
+            }
         }
     }
 

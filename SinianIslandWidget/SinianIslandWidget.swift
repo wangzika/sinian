@@ -160,7 +160,7 @@ struct SinianIslandLiveActivity: Widget {
                     .padding(.horizontal, 6)
                 }
             } compactLeading: {
-                // 紧凑态左侧：未读思念时才显示跳动爱心与昵称，已读后完全隐藏不占岛
+                // 紧凑态左侧：未读想念时显示跳动爱心与伴侣昵称，已读后干净收缩不占岛
                 if context.state.isUnread {
                     HStack(spacing: 4) {
                         Image(systemName: "heart.fill")
@@ -175,7 +175,7 @@ struct SinianIslandLiveActivity: Widget {
                     .padding(.leading, 4)
                 }
             } compactTrailing: {
-                // 紧凑态右侧：未读思念时高亮显示表情与“想你啦”，已读后完全隐藏
+                // 紧凑态右侧：未读想念时显示表情与“想你啦”，已读后干净收缩
                 if context.state.isUnread {
                     HStack(spacing: 3) {
                         Text(context.state.emoji)
@@ -193,7 +193,7 @@ struct SinianIslandLiveActivity: Widget {
                     .padding(.trailing, 4)
                 }
             } minimal: {
-                // 极小态：未读时显示跳动爱心与表情，已读后隐藏
+                // 极小态：未读时显示跳动爱心与表情，已读后干净收缩
                 if context.state.isUnread {
                     HStack(spacing: 2) {
                         Image(systemName: "heart.fill")

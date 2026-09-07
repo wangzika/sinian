@@ -390,13 +390,20 @@ public final class SyncService: NSObject, ObservableObject {
             let emoji = json["emoji"] as? String ?? "❤️"
             let actionType = json["actionType"] as? String ?? "tap"
 
+            // 申请临时系统后台任务断言，避免被系统标记为“仅后台音频”
+            var bgTask: UIBackgroundTaskIdentifier = .invalid
+            bgTask = UIApplication.shared.beginBackgroundTask(withName: "LiveActivityMissPush") {
+                if bgTask != .invalid {
+                    UIApplication.shared.endBackgroundTask(bgTask)
+                    bgTask = .invalid
+                }
+            }
+
             // 播放心跳震动
             HapticManager.shared.playPartnerMissNotification()
 
-            // 仅在灵动岛未激活时降级使用普通通知，灵动岛已激活时直接在黑胶囊中弹跳展示
-            if !LiveActivityManager.shared.isActivityActive {
-                postLocalMissNotification(senderName: senderName, message: message, emoji: emoji)
-            }
+            // 总是发送本地通知，确保灵动岛下拉横幅/锁屏横幅必出强提醒
+            postLocalMissNotification(senderName: senderName, message: message, emoji: emoji)
 
             // 记录事件并更新最新未读思念
             let event = MissEvent(
@@ -410,6 +417,13 @@ public final class SyncService: NSObject, ObservableObject {
             PairSession.shared.latestReceivedEvent = event
             PairSession.shared.hasUnreadReceivedMessage = true
 
+            // 暂时微暂停静音播放并释放音频会话，让 RunningBoard 进程断言完全切换为 background-task
+            let wasAudioPlaying = self.silentAudioPlayer?.isPlaying ?? false
+            if wasAudioPlaying {
+                self.silentAudioPlayer?.pause()
+                try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            }
+
             // 启动或更新灵动岛与锁屏显示
             LiveActivityManager.shared.startActivity(
                 senderName: senderName,
@@ -420,6 +434,17 @@ public final class SyncService: NSObject, ObservableObject {
                 actionType: actionType,
                 isUnread: true
             )
+
+            // 600毫秒后恢复静音音频守护并释放任务断言
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                if wasAudioPlaying {
+                    self?.startSilentAudio()
+                }
+                if bgTask != .invalid {
+                    UIApplication.shared.endBackgroundTask(bgTask)
+                    bgTask = .invalid
+                }
+            }
 
         default:
             break

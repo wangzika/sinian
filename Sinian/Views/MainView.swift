@@ -12,6 +12,7 @@ public struct MainView: View {
 
     @State private var showingPairingSheet = false
     @State private var showingTimelineSheet = false
+    @Environment(\.scenePhase) private var scenePhase
     @State private var toastMessage: String?
     @State private var selectedPreset = "此刻正在强烈想你 ❤️"
     @State private var showingMessageModal = false
@@ -154,6 +155,11 @@ public struct MainView: View {
             .onAppear {
                 checkAndPresentUnreadMessage()
             }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    checkAndPresentUnreadMessage()
+                }
+            }
             .onChange(of: pairSession.hasUnreadReceivedMessage) { _, hasUnread in
                 if hasUnread {
                     checkAndPresentUnreadMessage()
@@ -162,18 +168,15 @@ public struct MainView: View {
         }
     }
 
-    /// 检查未读消息并弹出展示，同时标记已查看
+    /// 检查未读消息并在 App 处于前台活跃时弹出展示
     private func checkAndPresentUnreadMessage() {
+        guard scenePhase == .active else { return }
         if let event = pairSession.latestReceivedEvent, !event.isFromMe, pairSession.hasUnreadReceivedMessage {
             activeMessageEvent = event
             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                 showingMessageModal = true
             }
-            // 标记灵动岛已在 App 中被查看，准备在退出应用时销毁
-            activityManager.markMessageAsViewed()
             HapticManager.shared.playHeartbeat()
-        } else if activityManager.isActivityActive {
-            activityManager.markMessageAsViewed()
         }
     }
 
@@ -415,6 +418,7 @@ public struct MainView: View {
                         showingMessageModal = false
                         pairSession.hasUnreadReceivedMessage = false
                     }
+                    activityManager.markMessageAsViewed()
                     activityManager.setActivityToIdle(
                         partnerName: pairSession.partnerNickname,
                         myName: pairSession.myNickname,
@@ -436,6 +440,7 @@ public struct MainView: View {
                         showingMessageModal = false
                         pairSession.hasUnreadReceivedMessage = false
                     }
+                    activityManager.markMessageAsViewed()
                     activityManager.setActivityToIdle(
                         partnerName: pairSession.partnerNickname,
                         myName: pairSession.myNickname,

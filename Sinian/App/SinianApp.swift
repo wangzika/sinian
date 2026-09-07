@@ -90,6 +90,7 @@ struct SinianApp: App {
                             missCount: pairSession.todayMissCount
                         )
                     } else if url.host == "dismiss" {
+                        print("[SinianApp] 用户点击我知道啦，收起灵动岛为隐形待命")
                         liveActivityManager.setActivityToIdle(
                             partnerName: pairSession.partnerNickname,
                             myName: pairSession.myNickname,
